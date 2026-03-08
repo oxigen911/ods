@@ -4,6 +4,14 @@ import joblib
 # Configuración de la pagina
 st.set_page_config(page_title="Clasificador de ODS")
 
+def text_preprocess(text):
+    tokenizer = RegexpTokenizer(r'\w+')
+    stemmer = SnowballStemmer('spanish')
+    tokens = tokenizer.tokenize(text.lower())
+    tokens = [word for word in tokens if word not in nltk_stopwords]
+    tokens = [stemmer.stem(word) for word in tokens]
+    return ' '.join(tokens)
+
 # Cargar el pipeline
 # Usamos cache_resource para que el modelo se cargue una sola vez y la app sea rápida
 @st.cache_resource
@@ -56,3 +64,4 @@ if st.button("Clasificar Texto", type="primary"):
 
 st.divider()
 st.caption("Proyecto de Clasificación de ODS - Desarrollado por Alberto Zapata y Sebastian Tapias")
+
