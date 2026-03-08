@@ -58,8 +58,7 @@ ODS_NOMBRES = {
 # Interfaz de usuario
 st.title("Clasificador de Objetivos de Desarrollo Sostenible (ODS)")
 st.markdown("""
-Esta aplicación utiliza un modelo de Machine Learning para identificar a qué ODS pertenece un texto. 
-Escribe una frase, meta o descripción de un proyecto a continuación.
+Esta aplicación utiliza un modelo de Machine Learning para identificar a qué ODS pertenece un texto.
 """)
 
 # Permitir al usuario ingresar un texto libre
@@ -92,6 +91,7 @@ if st.button("Clasificar Texto", type="primary"):
 
 st.divider()
 st.caption("Proyecto de Clasificación de ODS - Desarrollado por Alberto Zapata y Sebastian Tapias")
+
 
 
 
