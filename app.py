@@ -1,4 +1,7 @@
 import streamlit as st
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('stopwords')
 from nltk.stem import SnowballStemmer
 from nltk.tokenize import word_tokenize
 from nltk import RegexpTokenizer
@@ -7,6 +10,9 @@ import joblib
 
 # Configuración de la pagina
 st.set_page_config(page_title="Clasificador de ODS")
+
+# --- CONFIGURACIÓN DE NLTK ---
+nltk_stopwords = set(stopwords.words('spanish'))
 
 def text_preprocess(text):
     tokenizer = RegexpTokenizer(r'\w+')
@@ -68,6 +74,7 @@ if st.button("Clasificar Texto", type="primary"):
 
 st.divider()
 st.caption("Proyecto de Clasificación de ODS - Desarrollado por Alberto Zapata y Sebastian Tapias")
+
 
 
 
