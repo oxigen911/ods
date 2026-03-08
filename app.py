@@ -1,4 +1,5 @@
 import streamlit as st
+from nltk import RegexpTokenizer
 import joblib
 
 # Configuración de la pagina
@@ -64,4 +65,5 @@ if st.button("Clasificar Texto", type="primary"):
 
 st.divider()
 st.caption("Proyecto de Clasificación de ODS - Desarrollado por Alberto Zapata y Sebastian Tapias")
+
 
