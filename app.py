@@ -1,5 +1,8 @@
 import streamlit as st
+from nltk.stem import SnowballStemmer
+from nltk.tokenize import word_tokenize
 from nltk import RegexpTokenizer
+from nltk.corpus import stopwords
 import joblib
 
 # Configuración de la pagina
@@ -65,5 +68,6 @@ if st.button("Clasificar Texto", type="primary"):
 
 st.divider()
 st.caption("Proyecto de Clasificación de ODS - Desarrollado por Alberto Zapata y Sebastian Tapias")
+
 
 
