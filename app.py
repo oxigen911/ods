@@ -1,141 +1,58 @@
 import streamlit as st
 import joblib
-import nltk
-from nltk.stem import SnowballStemmer
-from nltk.tokenize import RegexpTokenizer
-from nltk.corpus import stopwords
 
-# Descargar recursos de NLTK
-@st.cache_resource
-def descargar_nltk():
-    try:
-        nltk.data.find('corpora/stopwords')
-    except:
-        nltk.download('stopwords', quiet=True)
-    try:
-        nltk.data.find('tokenizers/punkt')
-    except:
-        nltk.download('punkt', quiet=True)
+# Configuración de la pagina
+st.set_page_config(page_title="Clasificador de ODS")
 
-descargar_nltk()
-
-# Definir la función de preprocesamiento
-nltk_stopwords = stopwords.words("spanish")
-
-def text_preprocess(text):
-    """
-    Función de preprocesamiento de texto.
-    Debe estar definida ANTES de cargar el modelo.
-    """
-    tokenizer = RegexpTokenizer(r'\w+')
-    stemmer = SnowballStemmer('spanish')
-    
-    tokens = tokenizer.tokenize(text.lower())
-    tokens = [word for word in tokens if word not in nltk_stopwords]
-    tokens = [stemmer.stem(word) for word in tokens]
-    
-    return ' '.join(tokens)
-
-# Cargar modelo
+# Cargar el pipeline
+# Usamos cache_resource para que el modelo se cargue una sola vez y la app sea rápida
 @st.cache_resource
 def cargar_modelo():
-    return joblib.load("modelo_ods.joblib")
+    try:
+        return joblib.load('modelo_ods.joblib')
+    except Exception as e:
+        st.error(f"Error al cargar el modelo: {e}")
+        return None
 
 modelo = cargar_modelo()
 
-# Diccionario de ODS
-ODS_NOMBRES = {
-    1: "Fin de la pobreza",
-    2: "Hambre cero",
-    3: "Salud y bienestar",
-    4: "Educación de calidad",
-    5: "Igualdad de género",
-    6: "Agua limpia y saneamiento",
-    7: "Energía asequible y no contaminante",
-    8: "Trabajo decente y crecimiento económico",
-    9: "Industria, innovación e infraestructura",
-    10: "Reducción de las desigualdades",
-    11: "Ciudades y comunidades sostenibles",
-    12: "Producción y consumo responsables",
-    13: "Acción por el clima",
-    14: "Vida submarina",
-    15: "Vida de ecosistemas terrestres",
-    16: "Paz, justicia e instituciones sólidas"
-}
-
 # Interfaz de usuario
-st.title("Clasificador de Objetivos de Desarrollo Sostenible")
-st.markdown("---")
+st.title("Clasificador de Objetivos de Desarrollo Sostenible (ODS)")
+st.markdown("""
+Esta aplicación utiliza un modelo de Machine Learning para identificar a qué ODS pertenece un texto. 
+Escribe una frase, meta o descripción de un proyecto a continuación.
+""")
 
-# Ejemplos
-ejemplos = [
-    "Programas de alfabetización para adultos en comunidades rurales",
-    "Acceso universal a servicios de salud y vacunación",
-    "Instalación de paneles solares para energía limpia",
-    "Políticas de igualdad salarial entre hombres y mujeres",
-    "Reducción de emisiones de gases de efecto invernadero"
-]
-
-col1, col2 = st.columns([3, 1])
-with col1:
-    ejemplo_idx = st.selectbox("Usar ejemplo:", ["Escribe tu propio texto..."] + ejemplos)
-with col2:
-    st.write("")
-    st.write("")
-
-if ejemplo_idx != "Escribe tu propio texto...":
-    texto_inicial = ejemplo_idx
-else:
-    texto_inicial = ""
-
-texto = st.text_area(
-    "Ingrese un texto relacionado con desarrollo sostenible:",
-    value=texto_inicial,
-    height=120,
-    placeholder="Ejemplo: 'Reducción de la pobreza extrema mediante transferencias monetarias'"
+# Permitir al usuario ingresar un texto libre
+texto_usuario = st.text_area(
+    "Ingresa el texto a analizar:",
+    placeholder="Ejemplo: Promover el crecimiento económico inclusivo y sostenible, el empleo y el trabajo decente para todos.",
+    height=150
 )
 
-if st.button("Clasificar", type="primary"):
-    if texto.strip():
-        # Realizar predicción
-        pred = modelo.predict([texto])
-        prob = modelo.predict_proba([texto])
-        
-        ods_predicho = int(pred[0])
-        confianza = max(prob[0]) * 100
-        
-        # Mostrar resultado
-        st.markdown("---")
-        st.success(f"### ODS Predicho: **{ods_predicho}**")
-        st.info(f"**{ODS_NOMBRES[ods_predicho]}**")
-        st.metric("Confianza", f"{confianza:.2f}%")
-        
-        # Top 3
-        st.markdown("#### Top 3 predicciones:")
-        clases = modelo.classes_
-        probabilidades = prob[0]
-        
-        # Ordenar por probabilidad
-        indices_ordenados = probabilidades.argsort()[::-1][:3]
-        
-        cols = st.columns(3)
-        for i, idx in enumerate(indices_ordenados):
-            ods = int(clases[idx])
-            prob_ods = probabilidades[idx] * 100
-            
-            with cols[i]:
-                st.metric(
-                    label=f"#{i+1} - ODS {ods}",
-                    value=f"{prob_ods:.1f}%",
-                    delta=ODS_NOMBRES[ods]
-                )
+# Boton para procesar
+if st.button("Clasificar Texto", type="primary"):
+    if not texto_usuario.strip():
+        st.warning("Por favor, ingresa algún texto para poder realizar la predicción.")
+    elif modelo is not None:
+        # Procesar el texto utilizando el mismo pipeline construido
+        # El pipeline se encarga de la vectorización y la predicción automáticamente
+        with st.spinner('Procesando...'):
+            try:
+                prediccion = modelo.predict([texto_usuario])
+                ods_detectado = prediccion[0]
+                
+                # Generar como salida la predicción del ODS correspondiente
+                st.success(f"### Resultado: ODS {ods_detectado}")
+                
+                # Opcional: Mostrar una descripción visual o iconos según el ODS
+                st.info(f"El texto ha sido clasificado dentro del Objetivo {ods_detectado}.")
+                
+            except Exception as e:
+                st.error(f"Hubo un error al procesar el texto: {e}")
     else:
-        st.warning("Por favor ingrese un texto")
+        st.error("El modelo no está disponible. Verifica que 'modelo_ods.joblib' esté en el repositorio.")
 
-# Footer
-st.markdown("---")
-st.markdown("""
-<div style="text-align: center; color: gray;">
-    <p><strong>Microproyecto 2 - Machine Learning No Supervisado - Alberto Zapata/Sebastian Tapias</strong></p>
-</div>
-""", unsafe_allow_html=True)
+
+st.divider()
+st.caption("Proyecto de Clasificación de ODS - Desarrollado por Alberto Zapata y Sebastian Tapias")
