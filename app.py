@@ -24,7 +24,6 @@ def text_preprocess(text):
     return ' '.join(tokens)
 
 # Cargar el pipeline
-# Usamos cache_resource para que el modelo se cargue una sola vez y la app sea rápida
 @st.cache_resource
 def cargar_modelo():
     try:
@@ -86,11 +85,12 @@ if st.button("Clasificar Texto", type="primary"):
             except Exception as e:
                 st.error(f"Hubo un error al procesar el texto: {e}")
     else:
-        st.error("El modelo no está disponible. Verifica que 'modelo_ods.joblib' esté en el repositorio.")
+        st.error("El modelo no está disponible.")
 
 
 st.divider()
 st.caption("Proyecto de Clasificación de ODS - Desarrollado por Alberto Zapata y Sebastian Tapias")
+
 
 
 
