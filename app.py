@@ -35,6 +35,26 @@ def cargar_modelo():
 
 modelo = cargar_modelo()
 
+ODS_NOMBRES = {
+    1: "Fin de la Pobreza",
+    2: "Hambre Cero",
+    3: "Salud y Bienestar",
+    4: "Educación de Calidad",
+    5: "Igualdad de Género",
+    6: "Agua Limpia y Saneamiento",
+    7: "Energía Asequible y No Contaminante",
+    8: "Trabajo Decente y Crecimiento Económico",
+    9: "Industria, Innovación e Infraestructura",
+    10: "Reducción de las Desigualdades",
+    11: "Ciudades y Comunidades Sostenibles",
+    12: "Producción y Consumo Responsables",
+    13: "Acción por el Clima",
+    14: "Vida Submarina",
+    15: "Vida de Ecosistemas Terrestres",
+    16: "Paz, Justicia e Instituciones Sólidas",
+    17: "Alianzas para lograr los Objetivos"
+}
+
 # Interfaz de usuario
 st.title("Clasificador de Objetivos de Desarrollo Sostenible (ODS)")
 st.markdown("""
@@ -60,11 +80,8 @@ if st.button("Clasificar Texto", type="primary"):
             try:
                 prediccion = modelo.predict([texto_usuario])
                 ods_detectado = prediccion[0]
-                
-                # Generar como salida la predicción del ODS correspondiente
-                st.success(f"### Resultado: ODS {ods_detectado}")
-                
-                # Opcional: Mostrar una descripción visual o iconos según el ODS
+                nombre_ods = ODS_NOMBRES.get(int(ods_detectado), "Nombre no encontrado")
+                st.success(f"### Resultado: ODS {ods_detectado} - {nombre_ods}")
                 st.info(f"El texto ha sido clasificado dentro del Objetivo {ods_detectado}.")
                 
             except Exception as e:
@@ -75,6 +92,7 @@ if st.button("Clasificar Texto", type="primary"):
 
 st.divider()
 st.caption("Proyecto de Clasificación de ODS - Desarrollado por Alberto Zapata y Sebastian Tapias")
+
 
 
 
